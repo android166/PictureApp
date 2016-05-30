@@ -2,6 +2,7 @@ package com.tom.pictureapp;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.provider.MediaStore;
@@ -9,10 +10,12 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.SimpleCursorAdapter;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     private static final int REQUEST_EXTERNAL = 1;
     private GridView grid;
@@ -34,11 +37,13 @@ public class MainActivity extends AppCompatActivity {
         ContentResolver resolver = getContentResolver();
         Cursor c = resolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 null, null, null, null);
-        String[] from = {MediaStore.Images.Thumbnails.DATA, MediaStore.Images.Media.DISPLAY_NAME};
+        String[] from = {MediaStore.Images.Thumbnails.DATA,
+                MediaStore.Images.Media.DISPLAY_NAME};
         int[] to = {R.id.thumb_image, R.id.thumb_text};
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(
                 this, R.layout.thumb_item, c, from, to, 0 );
         grid.setAdapter(adapter);
+        grid.setOnItemClickListener(this);
     }
 
     @Override
@@ -46,5 +51,12 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode==REQUEST_EXTERNAL && grantResults[0]==PackageManager.PERMISSION_GRANTED){
             readThumbnails();
         }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra("POS", position);
+        startActivity(intent);
     }
 }
